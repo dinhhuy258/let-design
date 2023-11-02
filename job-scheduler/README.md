@@ -10,7 +10,6 @@ Design distributed job scheduling system allows users to run scheduled actions. 
 
 - Job Scheduler: Design a Job Scheduler as mentioned above.
 - Monitoring: Define critical metrics to monitor the performance and latency of the system
-- Scalable: The system can be auto-scaled in and out automatically and of course gracefully.
 - Fair-share scheduling: As we maintain the same price for all users, we won’t expect a few `whales` eat up all the capacity. The system should also give priority to other small business owners with small audience list. To maximize our paid conversion rate, we should give the best experience to new signed-up users who’s testing the workflow feature with a short time delay.
 - The user is able to change value or cancel timers on the fly. 
 
