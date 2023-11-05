@@ -2,16 +2,26 @@ package cmd
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"job-service/config"
+	"job-service/internal/infra/postgresql"
+	"job-service/internal/usecase"
 	"job-service/pkg/httpserver"
 	"job-service/pkg/logger"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
+	"github.com/golang-migrate/migrate/v4"
+	postgresMigration "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file" // for gorm driver
 	"github.com/spf13/cobra"
 	"go.uber.org/fx"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 var createServiceCommand = func() *cobra.Command {
@@ -34,8 +44,10 @@ func runSevice() {
 	app := fx.New(
 		fx.StartTimeout(conf.App.StartTimeout), fx.StopTimeout(conf.App.StopTimeout),
 		fx.Provide(
-			// newDatabaseConnection,
+			newDatabaseConnection,
 			newHttpServer,
+			postgresql.NewUserRepository,
+			usecase.NewUserUsecase,
 		),
 		fx.Supply(conf, logger),
 		fx.Invoke(startServer),
@@ -88,6 +100,92 @@ func startServer(lc fx.Lifecycle,
 			return server.Stop(ctx)
 		},
 	})
+}
+
+func newDatabaseConnection(lc fx.Lifecycle, conf *config.Config, logger logger.Interface) (*gorm.DB, error) {
+	connectionString := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable password=%s",
+		conf.Postgresql.Host,
+		conf.Postgresql.Port,
+		conf.Postgresql.Username,
+		conf.Postgresql.DbName,
+		conf.Postgresql.Password,
+	)
+
+	db, err := gorm.Open(
+		postgres.New(
+			postgres.Config{
+				DSN: connectionString,
+			}),
+		&gorm.Config{
+			DisableForeignKeyConstraintWhenMigrating: conf.Postgresql.DisableForeignKeyConstraintWhenMigrating,
+			PrepareStmt:                              conf.Postgresql.PrepareStmt,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	database, err := db.DB()
+	if err != nil {
+		return nil, err
+	}
+
+	database.SetMaxIdleConns(conf.Postgresql.MaxIdleConns)
+	database.SetMaxOpenConns(conf.Postgresql.MaxOpenConns)
+	database.SetConnMaxLifetime(time.Duration(conf.Postgresql.ConnMaxLifeTimeInSecond) * time.Second)
+	database.SetConnMaxIdleTime(time.Duration(conf.Postgresql.ConnMaxIdleTimeInSecond) * time.Second)
+
+	lc.Append(fx.Hook{
+		OnStart: func(context.Context) error {
+			database, err := db.DB()
+			if err != nil {
+				return err
+			}
+
+			err = database.Ping()
+			if err != nil {
+				return err
+			}
+
+			// migrate database
+			driver, err := postgresMigration.WithInstance(database, &postgresMigration.Config{})
+			if err != nil {
+				return err
+			}
+
+			m, err := migrate.NewWithDatabaseInstance("file://./migration", conf.Postgresql.DbName, driver)
+			if err != nil {
+				return err
+			}
+
+			logger.Info("Migrating database...")
+
+			err = m.Up()
+			if err != nil {
+				if errors.Is(err, migrate.ErrNoChange) {
+					return nil
+				}
+
+				logger.Error("Unable to migrate database. Error: %v", err)
+
+				return err
+			}
+
+			return nil
+		},
+		OnStop: func(_ context.Context) error {
+			database, err := db.DB()
+			if err != nil {
+				return err
+			}
+
+			logger.Info("Closing database connection")
+
+			return database.Close()
+		},
+	})
+
+	return db, nil
 }
 
 func newHttpServer(_ fx.Lifecycle, conf *config.Config) httpserver.Interface {

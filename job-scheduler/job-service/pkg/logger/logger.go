@@ -25,7 +25,7 @@ type Logger struct {
 var _ Interface = (*Logger)(nil)
 
 // New
-func New(level string) *Logger {
+func New(level string) Interface {
 	var l zerolog.Level
 
 	switch strings.ToLower(level) {

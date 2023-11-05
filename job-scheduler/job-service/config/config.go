@@ -28,7 +28,7 @@ type Config struct {
 		Port                                     string `envconfig:"POSTGRESQL_PORT" default:"5432"`
 		Username                                 string `envconfig:"POSTGRESQL_USERNAME" default:"postgres"`
 		Password                                 string `envconfig:"POSTGRESQL_PASSWORD" default:"postgres"`
-		DbName                                   string `envconfig:"POSTGRESQL_DBNAME" default:"ct-core-cah-instant-sell"`
+		DbName                                   string `envconfig:"POSTGRESQL_DBNAME" default:"job-service"`
 		SSLMode                                  string `envconfig:"POSTGRESQL_SSL_MODE" default:"disable"`
 		MaxIdleConns                             int    `envconfig:"POSTGRESQL_MAX_IDLE_CONNS" default:"10"`
 		MaxOpenConns                             int    `envconfig:"POSTGRESQL_MAX_OPEN_CONNS" default:"50"`
