@@ -23,6 +23,21 @@ func NewUserRepository(database *gorm.DB) entity.UserRepository {
 	}
 }
 
+func (_self *userRepository) Create(ctx context.Context, user entity.User) (entity.User, error) {
+	tx := _self.GetTransactionOrCreate(ctx)
+
+	var userModel model.User
+	userModel = userModel.FromEntity(user)
+
+	err := tx.WithContext(ctx).
+		Create(&userModel).Error
+	if err != nil {
+		return entity.User{}, err
+	}
+
+	return userModel.ToEntity(), nil
+}
+
 func (_self *userRepository) FindByUsername(ctx context.Context, username string) (*entity.User, error) {
 	tx := _self.GetTransactionOrCreate(ctx)
 

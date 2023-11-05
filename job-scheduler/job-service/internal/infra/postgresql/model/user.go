@@ -10,8 +10,8 @@ type User struct {
 	Password string `gorm:"password"`
 }
 
-func (User) FromEntity(user entity.User) *User {
-	return &User{
+func (User) FromEntity(user entity.User) User {
+	return User{
 		BaseModel: BaseModel{
 			Id: user.Id,
 		},

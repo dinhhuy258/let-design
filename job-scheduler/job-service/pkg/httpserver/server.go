@@ -10,25 +10,28 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/julienschmidt/httprouter"
+	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 )
 
 type Interface interface {
 	Start(ctx context.Context)
 	Stop(ctx context.Context) error
-	HandleFunc(method, path string, f http.HandlerFunc)
+	GetRouter() *gin.Engine
 }
 
 // server contains the server object and router object
 type server struct {
 	server *http.Server
-	router *httprouter.Router
+	router *gin.Engine
 }
 
 // New create a new server
 func New(port int, readTimeout, writeTimeout time.Duration) Interface {
-	router := httprouter.New()
+	router := gin.New()
+	router.Use(gin.Logger())
+	router.Use(gin.Recovery())
+
 	server := server{
 		server: &http.Server{
 			Addr:         ":" + strconv.Itoa(port),
@@ -70,6 +73,6 @@ func (s *server) Stop(ctx context.Context) error {
 
 // HandleFunc is an adapter which allows the usage of an http.HandlerFunc as a
 // request handle
-func (s *server) HandleFunc(method, path string, f http.HandlerFunc) {
-	s.router.HandlerFunc(method, path, f)
+func (s *server) GetRouter() *gin.Engine {
+	return s.router
 }

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"job-service/config"
+	httpv1 "job-service/internal/adapter/http/v1"
 	"job-service/internal/infra/postgresql"
 	"job-service/internal/usecase"
 	"job-service/pkg/httpserver"
@@ -48,6 +49,9 @@ func runSevice() {
 			newHttpServer,
 			postgresql.NewUserRepository,
 			usecase.NewUserUsecase,
+			usecase.NewAuthUsecase,
+			httpv1.NewAuthController,
+			httpv1.NewUserController,
 		),
 		fx.Supply(conf, logger),
 		fx.Invoke(startServer),
@@ -85,10 +89,14 @@ func startServer(lc fx.Lifecycle,
 	conf *config.Config,
 	logger *logger.Logger,
 	server httpserver.Interface,
+	authController httpv1.AuthController,
+	userController httpv1.UserController,
 ) {
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			logger.Info("Http server is listening on %v", conf.Http.Port)
+
+			httpv1.SetRoutes(server, authController, userController)
 
 			server.Start(ctx)
 
@@ -102,7 +110,7 @@ func startServer(lc fx.Lifecycle,
 	})
 }
 
-func newDatabaseConnection(lc fx.Lifecycle, conf *config.Config, logger logger.Interface) (*gorm.DB, error) {
+func newDatabaseConnection(lc fx.Lifecycle, conf *config.Config, logger *logger.Logger) (*gorm.DB, error) {
 	connectionString := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable password=%s",
 		conf.Postgresql.Host,
 		conf.Postgresql.Port,
