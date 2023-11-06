@@ -50,10 +50,13 @@ func runSevice() {
 			newDatabaseConnection,
 			newHttpServer,
 			postgresql.NewUserRepository,
+			postgresql.NewJobRepository,
 			usecase.NewUserUsecase,
 			usecase.NewAuthUsecase,
+			usecase.NewJobUsecase,
 			middleware.NewAuthMiddleware,
 			httpv1.NewUserController,
+			httpv1.NewJobController,
 		),
 		fx.Supply(conf, logger),
 		fx.Invoke(startServer),
@@ -93,12 +96,13 @@ func startServer(lc fx.Lifecycle,
 	server httpserver.Interface,
 	authMiddleware *jwt.GinJWTMiddleware,
 	userController httpv1.UserController,
+	jobController httpv1.JobController,
 ) {
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			logger.Info("Http server is listening on %v", conf.Http.Port)
 
-			httpv1.SetRoutes(server, authMiddleware, userController)
+			httpv1.SetRoutes(server, authMiddleware, userController, jobController)
 
 			server.Start(ctx)
 

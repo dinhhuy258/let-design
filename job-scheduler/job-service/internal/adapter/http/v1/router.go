@@ -15,6 +15,7 @@ func SetRoutes(
 	server httpserver.Interface,
 	authMiddleware *jwt.GinJWTMiddleware,
 	userController UserController,
+	jobController JobController,
 ) {
 	router := server.GetRouter()
 
@@ -27,5 +28,7 @@ func SetRoutes(
 
 	apiV1Group.Use(authMiddleware.MiddlewareFunc())
 	{
+		apiV1Group.POST("me/jobs", jobController.CreateJob)
+		apiV1Group.POST("me/jobs/:job_id", jobController.CancelJob)
 	}
 }
