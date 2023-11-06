@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"job-service/config"
+	"job-service/internal/adapter/http/middleware"
 	httpv1 "job-service/internal/adapter/http/v1"
 	"job-service/internal/infra/postgresql"
 	"job-service/internal/usecase"
@@ -16,6 +17,7 @@ import (
 	"syscall"
 	"time"
 
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/golang-migrate/migrate/v4"
 	postgresMigration "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file" // for gorm driver
@@ -50,7 +52,7 @@ func runSevice() {
 			postgresql.NewUserRepository,
 			usecase.NewUserUsecase,
 			usecase.NewAuthUsecase,
-			httpv1.NewAuthController,
+			middleware.NewAuthMiddleware,
 			httpv1.NewUserController,
 		),
 		fx.Supply(conf, logger),
@@ -89,14 +91,14 @@ func startServer(lc fx.Lifecycle,
 	conf *config.Config,
 	logger *logger.Logger,
 	server httpserver.Interface,
-	authController httpv1.AuthController,
+	authMiddleware *jwt.GinJWTMiddleware,
 	userController httpv1.UserController,
 ) {
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			logger.Info("Http server is listening on %v", conf.Http.Port)
 
-			httpv1.SetRoutes(server, authController, userController)
+			httpv1.SetRoutes(server, authMiddleware, userController)
 
 			server.Start(ctx)
 

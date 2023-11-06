@@ -38,6 +38,11 @@ type Config struct {
 		ConnMaxIdleTimeInSecond                  int    `envconfig:"POSTGRES_CONN_MAX_IDLE_TIME_IN_SECOND" default:"30"`
 		DebugQuery                               bool   `envconfig:"POSTGRES_DEBUG_QUERY" default:"true"`
 	}
+	Jwt struct {
+		SecretKey           string        `envconfig:"JWT_SECRET_KEY" default:"secret"`
+		AccessTokenTimeOut  time.Duration `envconfig:"START_TIMEOUT" default:"1h"`
+		RefreshTokenTimeOut time.Duration `envconfig:"START_TIMEOUT" default:"4h"`
+	}
 }
 
 func loadConfig() (*Config, error) {
