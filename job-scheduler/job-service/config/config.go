@@ -14,6 +14,7 @@ type Config struct {
 		Name         string        `envconfig:"APP_NAME" default:"job-service"`
 		StartTimeout time.Duration `envconfig:"START_TIMEOUT" default:"1m"`
 		StopTimeout  time.Duration `envconfig:"STOP_TIMEOUT" default:"1m"`
+		JobShardSize uint64        `envconfig:"JOB_SHARD_SIZE" default:"10"`
 	}
 	Http struct {
 		Port         int           `envconfig:"HTTP_PORT" default:"8080"`

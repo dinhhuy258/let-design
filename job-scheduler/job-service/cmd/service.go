@@ -54,6 +54,7 @@ func runSevice() {
 			usecase.NewUserUsecase,
 			usecase.NewAuthUsecase,
 			usecase.NewJobUsecase,
+			usecase.NewInmemoryJobShardUsecase,
 			middleware.NewAuthMiddleware,
 			httpv1.NewUserController,
 			httpv1.NewJobController,

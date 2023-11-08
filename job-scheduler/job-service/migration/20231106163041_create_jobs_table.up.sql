@@ -3,6 +3,7 @@ BEGIN;
 CREATE TABLE jobs (
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL,
+    shard_id BIGINT NOT NULL,
     message TEXT NOT NULL,
     status VARCHAR(16) NOT NULL DEFAULT 'created',
     weight_factor FLOAT NOT NULL DEFAULT 1,
@@ -13,5 +14,6 @@ CREATE TABLE jobs (
 );
 
 CREATE INDEX IF NOT EXISTS jobs_user_id ON jobs(user_id);
+-- TODO: create index on execute_at
 
 COMMIT;

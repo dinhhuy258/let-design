@@ -12,17 +12,20 @@ type JobUsecase interface {
 }
 
 type jobUsecase struct {
-	jobRepository entity.JobRepository
-	logger        *logger.Logger
+	jobShardUsecase JobShardUsecase
+	jobRepository   entity.JobRepository
+	logger          *logger.Logger
 }
 
 func NewJobUsecase(
+	jobShardUsecase JobShardUsecase,
 	jobRepository entity.JobRepository,
 	logger *logger.Logger,
 ) JobUsecase {
 	return &jobUsecase{
-		jobRepository: jobRepository,
-		logger:        logger,
+		jobShardUsecase: jobShardUsecase,
+		jobRepository:   jobRepository,
+		logger:          logger,
 	}
 }
 
@@ -30,6 +33,7 @@ func (_self *jobUsecase) CreateJob(ctx context.Context, job entity.Job) (entity.
 	_self.logger.Info("creating job %v", job)
 
 	job.Status = entity.JobStatusCreated
+	job.ShardId = _self.jobShardUsecase.GetSharedId()
 
 	job, err := _self.jobRepository.Create(ctx, job)
 	if err != nil {

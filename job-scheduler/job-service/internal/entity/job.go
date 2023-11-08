@@ -6,11 +6,11 @@ import (
 )
 
 const (
-	JobStatusCreated    = "created"
-	JobStatusRunning    = "running"
-	JobStatusFailed     = "failed"
-	JobStatusCancelled  = "cancelled"
-	JobStatusCompleted  = "completed"
+	JobStatusCreated   = "created"
+	JobStatusRunning   = "running"
+	JobStatusFailed    = "failed"
+	JobStatusCancelled = "cancelled"
+	JobStatusCompleted = "completed"
 )
 
 type Job struct {
@@ -20,6 +20,7 @@ type Job struct {
 	Status       string    `json:"status"`
 	WeightFactor float32   `json:"weight_factor"`
 	ExecuteAt    time.Time `json:"execute_at"`
+	ShardId      uint64
 }
 
 type JobRepository interface {
