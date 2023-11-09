@@ -1,0 +1,34 @@
+run:
+  timeout: 5m
+
+linters:
+  disable-all: true
+  enable:
+    - errcheck
+    - goimports
+    - revive # replacement for golint
+    - govet
+    - staticcheck
+    - nlreturn
+    - whitespace
+    - wsl
+    - unparam
+    - bodyclose
+    - contextcheck
+    - decorder
+    - dogsled
+    - durationcheck
+    - errname
+    - nilerr
+
+linters-settings:
+  revive:
+    rules:
+      - name: var-naming
+        arguments: [["ID"], []]
+
+issues:
+  exclude-rules:
+  - path: /
+    linters:
+    - typecheck # disable it as it results in tons of false positives
