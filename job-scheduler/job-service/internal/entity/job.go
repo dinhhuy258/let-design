@@ -18,7 +18,6 @@ type Job struct {
 	UserId       uint64    `json:"user_id"`
 	Message      string    `json:"message"`
 	Status       string    `json:"status"`
-	WeightFactor float32   `json:"weight_factor"`
 	ExecuteAt    time.Time `json:"execute_at"`
 	ShardId      uint64
 }

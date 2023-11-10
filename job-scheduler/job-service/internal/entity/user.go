@@ -3,9 +3,10 @@ package entity
 import "context"
 
 type User struct {
-	Id       uint64 `json:"id"`
-	Username string `json:"username,omitempty"`
-	Password string `json:"password,omitempty"`
+	Id        uint64  `json:"id"`
+	Username  string  `json:"username"`
+	Password  string  `json:"password,omitempty"`
+	JobWeight float32 `json:"job_weight"`
 }
 
 type UserRepository interface {
