@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"job-scheduler-service/config"
 	"job-scheduler-service/internal/adapter/worker"
+	"job-scheduler-service/internal/infra/postgresql"
+	"job-scheduler-service/internal/usecase"
 	"job-scheduler-service/pkg/logger"
 	"log"
 	"os"
@@ -39,8 +41,11 @@ func runSevice() {
 	app := fx.New(
 		fx.StartTimeout(conf.App.StartTimeout), fx.StopTimeout(conf.App.StopTimeout),
 		fx.Provide(
-			newWorker,
+			worker.NewSchedulerWorker,
 			newDatabaseConnection,
+			postgresql.NewJobRepository,
+			usecase.NewJobUsecase,
+			usecase.NewFairSchedulerUsecase,
 		),
 		fx.Supply(conf, logger),
 		fx.Invoke(startWorker),
@@ -151,8 +156,4 @@ func newDatabaseConnection(lc fx.Lifecycle, conf *config.Config, logger *logger.
 	})
 
 	return db, nil
-}
-
-func newWorker(conf *config.Config, logger *logger.Logger) worker.SchedulerWorker {
-	return worker.NewSchedulerWorker(conf, logger)
 }

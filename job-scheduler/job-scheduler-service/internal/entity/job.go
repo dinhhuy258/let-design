@@ -5,6 +5,10 @@ import (
 	"time"
 )
 
+const (
+	JobStatusCreated = "created"
+)
+
 type Job struct {
 	Id           uint64
 	UserId       uint64

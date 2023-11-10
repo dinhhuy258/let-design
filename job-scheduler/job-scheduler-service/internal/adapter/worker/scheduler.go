@@ -2,6 +2,7 @@ package worker
 
 import (
 	"job-scheduler-service/config"
+	"job-scheduler-service/internal/usecase"
 	"job-scheduler-service/pkg/logger"
 	"time"
 )
@@ -12,19 +13,30 @@ type SchedulerWorker interface {
 }
 
 type schedulerWorker struct {
-	Closed chan struct{}
-	Ticker *time.Ticker
+	closed chan struct{}
+	ticker *time.Ticker
 	// list of shard ids that this worker is responsible for
-	ShardIds []uint64
-	Logger   *logger.Logger
+	shardIds []uint64
+
+	jobUsecase       usecase.JobUsecase
+	schedulerUsecase usecase.SchedulerUsecase
+
+	logger *logger.Logger
 }
 
-func NewSchedulerWorker(conf *config.Config, logger *logger.Logger) SchedulerWorker {
+func NewSchedulerWorker(
+	jobUsecase usecase.JobUsecase,
+	schedulerUsecase usecase.SchedulerUsecase,
+	conf *config.Config,
+	logger *logger.Logger,
+) SchedulerWorker {
 	return &schedulerWorker{
-		Closed:   make(chan struct{}),
-		Ticker:   time.NewTicker(time.Second),
-		ShardIds: conf.App.ShardIds,
-		Logger:   logger,
+		closed:           make(chan struct{}),
+		ticker:           time.NewTicker(time.Second),
+		shardIds:         conf.App.ShardIds,
+		jobUsecase:       jobUsecase,
+		schedulerUsecase: schedulerUsecase,
+		logger:           logger,
 	}
 }
 
@@ -33,9 +45,9 @@ func (_self *schedulerWorker) Start() {
 	go func() {
 		for {
 			select {
-			case <-_self.Closed:
+			case <-_self.closed:
 				return
-			case <-_self.Ticker.C:
+			case <-_self.ticker.C:
 			}
 		}
 	}()
@@ -43,5 +55,5 @@ func (_self *schedulerWorker) Start() {
 
 // Stop stops the scheduler worker.
 func (_self *schedulerWorker) Stop() {
-	close(_self.Closed)
+	close(_self.closed)
 }
