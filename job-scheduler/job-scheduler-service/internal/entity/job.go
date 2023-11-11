@@ -10,13 +10,13 @@ const (
 )
 
 type Job struct {
-	Id           uint64
-	UserId       uint64
-	Message      string
-	Status       string
-	WeightFactor float32
-	ExecuteAt    time.Time
-	ShardId      uint64
+	Id        uint64
+	UserId    uint64
+	Message   string
+	Status    string
+	ExecuteAt time.Time
+	ShardId   uint64
+	User      *User
 }
 
 type JobRepository interface {
