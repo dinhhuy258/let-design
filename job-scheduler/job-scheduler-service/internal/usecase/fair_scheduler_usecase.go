@@ -4,7 +4,9 @@ import (
 	"container/list"
 	"container/ring"
 	"context"
+	"job-scheduler-service/config"
 	"job-scheduler-service/internal/entity"
+	"math"
 	"sort"
 
 	"github.com/samber/lo"
@@ -14,11 +16,20 @@ type fairSchedulerUsecase struct {
 	baseSchedulerUsecase
 }
 
-func NewFairSchedulerUsecase() SchedulerUsecase {
-	return &fairSchedulerUsecase{}
+func NewFairSchedulerUsecase(messageBusRepository entity.MessageBusRepository, conf *config.Config) SchedulerUsecase {
+	return &fairSchedulerUsecase{
+		baseSchedulerUsecase: baseSchedulerUsecase{
+			scheduledJobTopic:    conf.Kafka.ScheduledJobTopic,
+			messageBusRepository: messageBusRepository,
+		},
+	}
 }
 
 func (_self *fairSchedulerUsecase) ScheduleJobs(ctx context.Context, jobs []entity.Job) error {
+	if len(jobs) == 0 {
+		return nil
+	}
+
 	jobGroups := lo.PartitionBy(jobs, func(job entity.Job) int {
 		return int(job.User.Id)
 	})
@@ -35,15 +46,37 @@ func (_self *fairSchedulerUsecase) ScheduleJobs(ctx context.Context, jobs []enti
 		})
 	}
 
-	scheduledJobs := _self.getScheduledJobs(ctx, jobs)
+	scheduledJobs := _self.getScheduledJobs(jobs)
 	for _, job := range scheduledJobs {
-		_self.scheduleJob(ctx, job)
+		_self.scheduleJob(job)
 	}
 
 	return nil
 }
 
-func (*fairSchedulerUsecase) getScheduledJobs(ctx context.Context, jobs []entity.Job) []entity.Job {
+func (*fairSchedulerUsecase) getScheduledJobs(jobs []entity.Job) []entity.Job {
+	// please note that the following algorithm is not the most efficient
+	// it does not handle well on job weight
+	// for example if we have 3 users (user1, user2, user3) with job weight (2, 2, 1)
+	// the algorithm will schedule the jobs in the following order:
+	// user 1, user 1, user 2, user 2, user 3
+	// but the most efficient way to schedule the jobs is:
+	// user 1, user 2, user 1, user 2, user 3
+	// or
+	// user 1, user 2, user 1, user 3, user 2
+
+	// normalize the job weight
+	minWeight := float32(math.MaxFloat32)
+	for _, job := range jobs {
+		if job.User.JobWeight < minWeight {
+			minWeight = job.User.JobWeight
+		}
+	}
+
+	for jobIdx := range jobs {
+		jobs[jobIdx].User.JobWeight = jobs[jobIdx].User.JobWeight / minWeight
+	}
+
 	// partition jobs by user id
 	jobGroups := lo.PartitionBy(jobs, func(job entity.Job) int {
 		return int(job.User.Id)

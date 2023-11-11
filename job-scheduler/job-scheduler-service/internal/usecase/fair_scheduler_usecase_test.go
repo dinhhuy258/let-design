@@ -24,8 +24,62 @@ func (suite *fairSchedulerUsecaseTestSuite) TearDownSuite() {
 func (suite *fairSchedulerUsecaseTestSuite) TearDownTest() {
 }
 
+func (suite *fairSchedulerUsecaseTestSuite) TestMultipleUsersEqualWeights() {
+	now := time.Now()
+	user1Id := uint64(1)
+	user2Id := uint64(2)
+	user1Weight := float32(2)
+	user2Weight := float32(2)
+
+	jobs := suite.usecase.getScheduledJobs([]entity.Job{
+		{
+			Id:        1,
+			ExecuteAt: now.Add(-2 * time.Second),
+			User: &entity.User{
+				Id:        user1Id,
+				JobWeight: user1Weight,
+			},
+		},
+		{
+			Id:        2,
+			ExecuteAt: now.Add(-1 * time.Second),
+			User: &entity.User{
+				Id:        user2Id,
+				JobWeight: user2Weight,
+			},
+		},
+		{
+			Id:        3,
+			ExecuteAt: now,
+			User: &entity.User{
+				Id:        user1Id,
+				JobWeight: user1Weight,
+			},
+		},
+		{
+			Id:        4,
+			ExecuteAt: now.Add(1 * time.Second),
+			User: &entity.User{
+				Id:        user2Id,
+				JobWeight: user2Weight,
+			},
+		},
+		{
+			Id:        5,
+			ExecuteAt: now.Add(2 * time.Second),
+			User: &entity.User{
+				Id:        user1Id,
+				JobWeight: user1Weight,
+			},
+		},
+	})
+
+	jobIds := getJobIds(jobs)
+
+	suite.Equal([]uint64{1, 2, 3, 4, 5}, jobIds)
+}
+
 func (suite *fairSchedulerUsecaseTestSuite) TestFairShare() {
-	ctx := context.Background()
 	now := time.Now()
 	user1 := &entity.User{
 		Id:        1,
@@ -36,7 +90,7 @@ func (suite *fairSchedulerUsecaseTestSuite) TestFairShare() {
 		JobWeight: 1,
 	}
 
-	jobs := suite.usecase.getScheduledJobs(ctx, []entity.Job{
+	jobs := suite.usecase.getScheduledJobs([]entity.Job{
 		{
 			Id:        1,
 			ExecuteAt: now.Add(-1 * time.Second),

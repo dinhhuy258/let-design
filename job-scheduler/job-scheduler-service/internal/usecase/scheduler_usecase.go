@@ -9,11 +9,15 @@ type SchedulerUsecase interface {
 	ScheduleJobs(ctx context.Context, jobs []entity.Job) error
 }
 
-type baseSchedulerUsecase struct{}
+type baseSchedulerUsecase struct {
+	scheduledJobTopic    string
+	messageBusRepository entity.MessageBusRepository
+}
 
-func (_self *baseSchedulerUsecase) scheduleJob(ctx context.Context, job entity.Job) error {
-	// push job to kafka
-	print(job.Message)
+func (_self *baseSchedulerUsecase) scheduleJob(job entity.Job) error {
+	_self.messageBusRepository.PublishScheduledEvent(_self.scheduledJobTopic, entity.ScheduledEvent{
+		Message: job.Message,
+	})
 
 	return nil
 }

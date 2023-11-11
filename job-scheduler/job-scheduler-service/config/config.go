@@ -24,7 +24,7 @@ type Config struct {
 		Port                                     string `envconfig:"POSTGRESQL_PORT" default:"5432"`
 		Username                                 string `envconfig:"POSTGRESQL_USERNAME" default:"postgres"`
 		Password                                 string `envconfig:"POSTGRESQL_PASSWORD" default:"postgres"`
-		DbName                                   string `envconfig:"POSTGRESQL_DBNAME" default:"job-service"`
+		DbName                                   string `envconfig:"POSTGRESQL_DBNAME" default:"job-scheduler"`
 		SSLMode                                  string `envconfig:"POSTGRESQL_SSL_MODE" default:"disable"`
 		MaxIdleConns                             int    `envconfig:"POSTGRESQL_MAX_IDLE_CONNS" default:"10"`
 		MaxOpenConns                             int    `envconfig:"POSTGRESQL_MAX_OPEN_CONNS" default:"50"`
@@ -33,6 +33,12 @@ type Config struct {
 		ConnMaxLifeTimeInSecond                  int    `envconfig:"POSTGRES_CONN_MAX_LIFE_TIME_IN_SECOND" default:"600"`
 		ConnMaxIdleTimeInSecond                  int    `envconfig:"POSTGRES_CONN_MAX_IDLE_TIME_IN_SECOND" default:"30"`
 		DebugQuery                               bool   `envconfig:"POSTGRES_DEBUG_QUERY" default:"true"`
+	}
+	Kafka struct {
+		BootstrapServers  string `envconfig:"KAFKA_BOOTSTRAP_SERVERS" default:"kafka:9091"`
+		ClientId          string `envconfig:"KAFKA_PRODUCER_CLIENT_ID" default:"job-scheduler-service"`
+		ACKS              string `envconfig:"KAFKA_PRODUCER_ACKS" default:"all"`
+		ScheduledJobTopic string `envconfig:"KAFKA_PRODUCER_SCHEDULED_JOB_TOPIC" default:"scheduled_jobs"`
 	}
 }
 

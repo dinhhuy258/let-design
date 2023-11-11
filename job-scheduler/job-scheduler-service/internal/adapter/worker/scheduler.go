@@ -1,6 +1,7 @@
 package worker
 
 import (
+	"context"
 	"job-scheduler-service/config"
 	"job-scheduler-service/internal/usecase"
 	"job-scheduler-service/pkg/logger"
@@ -43,11 +44,18 @@ func NewSchedulerWorker(
 // Start starts the scheduler worker.
 func (_self *schedulerWorker) Start() {
 	go func() {
+		ctx := context.Background()
 		for {
 			select {
 			case <-_self.closed:
 				return
 			case <-_self.ticker.C:
+				jobs, err := _self.jobUsecase.GetAvailableJobs(ctx, _self.shardIds)
+				if err != nil {
+					_self.logger.Error("error while getting available jobs", err)
+				} else {
+					_self.schedulerUsecase.ScheduleJobs(ctx, jobs)
+				}
 			}
 		}
 	}()

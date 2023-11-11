@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"job-scheduler-service/config"
 	"job-scheduler-service/internal/adapter/worker"
+	"job-scheduler-service/internal/infra/kafka"
 	"job-scheduler-service/internal/infra/postgresql"
 	"job-scheduler-service/internal/usecase"
 	"job-scheduler-service/pkg/logger"
@@ -44,6 +45,7 @@ func runSevice() {
 			worker.NewSchedulerWorker,
 			newDatabaseConnection,
 			postgresql.NewJobRepository,
+			kafka.NewMessageBusRepository,
 			usecase.NewJobUsecase,
 			usecase.NewFairSchedulerUsecase,
 		),

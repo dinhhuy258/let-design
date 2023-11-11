@@ -40,5 +40,23 @@ func (_self *jobRepository) FindMultiAvailableJobs(
 	executeAt time.Time,
 	shardIds []uint64,
 ) ([]entity.Job, error) {
-	return nil, nil
+	tx := _self.GetTransactionOrCreate(ctx)
+
+	var jobModels []model.Job
+	tx = tx.WithContext(ctx).Model(&jobModels)
+	tx = tx.Where("status = ?", status)
+	tx = tx.Where("execute_at <= ?", executeAt)
+	tx = tx.Where("shard_id IN ?", shardIds)
+
+	err := tx.Find(&jobModels).Error
+	if err != nil {
+		return nil, err
+	}
+
+	var jobs []entity.Job
+	for _, jobModel := range jobModels {
+		jobs = append(jobs, jobModel.ToEntity())
+	}
+
+	return jobs, nil
 }
