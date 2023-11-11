@@ -41,8 +41,8 @@ type Config struct {
 	}
 	Jwt struct {
 		SecretKey           string        `envconfig:"JWT_SECRET_KEY" default:"secret"`
-		AccessTokenTimeOut  time.Duration `envconfig:"START_TIMEOUT" default:"1h"`
-		RefreshTokenTimeOut time.Duration `envconfig:"START_TIMEOUT" default:"4h"`
+		AccessTokenTimeOut  time.Duration `envconfig:"JWT_ACCESS_TOKEN_TIMEOUT" default:"1h"`
+		RefreshTokenTimeOut time.Duration `envconfig:"JWT_REFRESH_TOKEN_TIMEOUT" default:"4h"`
 	}
 }
 
