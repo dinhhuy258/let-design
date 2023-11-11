@@ -6,6 +6,7 @@ import (
 	"context"
 	"job-scheduler-service/config"
 	"job-scheduler-service/internal/entity"
+	"job-scheduler-service/pkg/logger"
 	"math"
 	"sort"
 
@@ -16,11 +17,18 @@ type fairSchedulerUsecase struct {
 	baseSchedulerUsecase
 }
 
-func NewFairSchedulerUsecase(messageBusRepository entity.MessageBusRepository, conf *config.Config) SchedulerUsecase {
+func NewFairSchedulerUsecase(
+	messageBusRepository entity.MessageBusRepository,
+	jobRepository entity.JobRepository,
+	conf *config.Config,
+	logger *logger.Logger,
+) SchedulerUsecase {
 	return &fairSchedulerUsecase{
 		baseSchedulerUsecase: baseSchedulerUsecase{
 			scheduledJobTopic:    conf.Kafka.ScheduledJobTopic,
 			messageBusRepository: messageBusRepository,
+			jobRepository:        jobRepository,
+			logger:               logger,
 		},
 	}
 }
@@ -48,7 +56,7 @@ func (_self *fairSchedulerUsecase) ScheduleJobs(ctx context.Context, jobs []enti
 
 	scheduledJobs := _self.getScheduledJobs(jobs)
 	for _, job := range scheduledJobs {
-		_self.scheduleJob(job)
+		_ = _self.scheduleJob(ctx, job)
 	}
 
 	return nil
@@ -64,7 +72,6 @@ func (*fairSchedulerUsecase) getScheduledJobs(jobs []entity.Job) []entity.Job {
 	// user 1, user 2, user 1, user 2, user 3
 	// or
 	// user 1, user 2, user 1, user 3, user 2
-
 	// normalize the job weight
 	minWeight := float32(math.MaxFloat32)
 	for _, job := range jobs {

@@ -47,6 +47,7 @@ func (_self *jobRepository) FindMultiAvailableJobs(
 	tx = tx.Where("status = ?", status)
 	tx = tx.Where("execute_at <= ?", executeAt)
 	tx = tx.Where("shard_id IN ?", shardIds)
+	tx = tx.Preload("User")
 
 	err := tx.Find(&jobModels).Error
 	if err != nil {

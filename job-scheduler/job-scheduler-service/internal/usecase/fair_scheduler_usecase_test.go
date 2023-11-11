@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"context"
 	"job-scheduler-service/internal/entity"
 	"testing"
 	"time"

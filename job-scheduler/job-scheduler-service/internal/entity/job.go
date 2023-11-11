@@ -7,6 +7,7 @@ import (
 
 const (
 	JobStatusCreated = "created"
+	JobStatusRunning = "running"
 )
 
 type Job struct {

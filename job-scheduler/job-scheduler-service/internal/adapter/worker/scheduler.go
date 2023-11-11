@@ -45,6 +45,7 @@ func NewSchedulerWorker(
 func (_self *schedulerWorker) Start() {
 	go func() {
 		ctx := context.Background()
+
 		for {
 			select {
 			case <-_self.closed:
@@ -54,7 +55,10 @@ func (_self *schedulerWorker) Start() {
 				if err != nil {
 					_self.logger.Error("error while getting available jobs", err)
 				} else {
-					_self.schedulerUsecase.ScheduleJobs(ctx, jobs)
+					err := _self.schedulerUsecase.ScheduleJobs(ctx, jobs)
+					if err != nil {
+						_self.logger.Error("error while scheduling jobs %v", err)
+					}
 				}
 			}
 		}
