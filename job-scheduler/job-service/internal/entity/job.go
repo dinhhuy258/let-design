@@ -14,12 +14,12 @@ const (
 )
 
 type Job struct {
-	Id           uint64    `json:"id"`
-	UserId       uint64    `json:"user_id"`
-	Message      string    `json:"message"`
-	Status       string    `json:"status"`
-	ExecuteAt    time.Time `json:"execute_at"`
-	ShardId      uint64
+	Id        uint64    `json:"id"`
+	UserId    uint64    `json:"user_id"`
+	Message   string    `json:"message"`
+	Status    string    `json:"status"`
+	ExecuteAt time.Time `json:"execute_at"`
+	ShardId   uint64
 }
 
 type JobRepository interface {

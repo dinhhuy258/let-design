@@ -7,11 +7,11 @@ import (
 
 type Job struct {
 	BaseModel
-	UserId       uint64    `gorm:"user_id"`
-	ShardId      uint64    `gorm:"shard_id"`
-	Message      string    `gorm:"message"`
-	Status       string    `gorm:"status"`
-	ExecuteAt    time.Time `gorm:"execute_at"`
+	UserId    uint64    `gorm:"user_id"`
+	ShardId   uint64    `gorm:"shard_id"`
+	Message   string    `gorm:"message"`
+	Status    string    `gorm:"status"`
+	ExecuteAt time.Time `gorm:"execute_at"`
 }
 
 func (Job) FromEntity(job entity.Job) Job {
@@ -19,22 +19,22 @@ func (Job) FromEntity(job entity.Job) Job {
 		BaseModel: BaseModel{
 			Id: job.Id,
 		},
-		UserId:       job.UserId,
-		ShardId:      job.ShardId,
-		Message:      job.Message,
-		Status:       job.Status,
-		ExecuteAt:    job.ExecuteAt,
+		UserId:    job.UserId,
+		ShardId:   job.ShardId,
+		Message:   job.Message,
+		Status:    job.Status,
+		ExecuteAt: job.ExecuteAt,
 	}
 }
 
 func (_self Job) ToEntity() entity.Job {
 	return entity.Job{
-		Id:           _self.Id,
-		UserId:       _self.UserId,
-		ShardId:      _self.ShardId,
-		Message:      _self.Message,
-		Status:       _self.Status,
-		ExecuteAt:    _self.ExecuteAt,
+		Id:        _self.Id,
+		UserId:    _self.UserId,
+		ShardId:   _self.ShardId,
+		Message:   _self.Message,
+		Status:    _self.Status,
+		ExecuteAt: _self.ExecuteAt,
 	}
 }
 

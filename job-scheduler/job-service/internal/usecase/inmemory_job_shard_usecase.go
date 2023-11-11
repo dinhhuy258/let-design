@@ -21,8 +21,8 @@ func NewInmemoryJobShardUsecase(conf *config.Config) JobShardUsecase {
 }
 
 func (_self *inmemoryJobShardUsecase) GetSharedId() uint64 {
-	shardId := _self.jobCount.Load() / _self.shardSize
 	_self.jobCount.Add(1)
+	shardId := _self.jobCount.Load() / _self.shardSize
 
 	return shardId
 }

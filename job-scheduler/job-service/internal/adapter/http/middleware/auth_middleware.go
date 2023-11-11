@@ -43,7 +43,7 @@ func NewAuthMiddleware(
 			claims := jwt.ExtractClaims(c)
 
 			return &entity.User{
-				Id: claims[userIDKey].(uint64),
+				Id: uint64(claims[userIDKey].(float64)),
 			}
 		},
 		Authenticator: func(c *gin.Context) (interface{}, error) {

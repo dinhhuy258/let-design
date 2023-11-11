@@ -7,6 +7,7 @@ import (
 )
 
 type JobUsecase interface {
+	GetJobs(ctx context.Context, userId uint64) ([]entity.Job, error)
 	CreateJob(ctx context.Context, job entity.Job) (entity.Job, error)
 	CancelJob(ctx context.Context, userId, jobId uint64) error
 }
@@ -78,4 +79,15 @@ func (_self *jobUsecase) CancelJob(ctx context.Context, userId, jobId uint64) er
 	}
 
 	return err
+}
+
+func (_self *jobUsecase) GetJobs(ctx context.Context, userId uint64) ([]entity.Job, error) {
+	_, err := _self.jobRepository.FindMultiByUserId(ctx, userId)
+	if err != nil {
+		_self.logger.Error("failed to get jobs %v", err)
+
+		return nil, err
+	}
+
+	return []entity.Job{}, nil
 }

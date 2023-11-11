@@ -28,6 +28,7 @@ func SetRoutes(
 
 	apiV1Group.Use(authMiddleware.MiddlewareFunc())
 	{
+		apiV1Group.GET("me/jobs", jobController.GetJobs)
 		apiV1Group.POST("me/jobs", jobController.CreateJob)
 		apiV1Group.POST("me/jobs/:job_id", jobController.CancelJob)
 	}

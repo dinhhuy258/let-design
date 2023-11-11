@@ -11,6 +11,7 @@ import (
 )
 
 type JobController interface {
+	GetJobs(context *gin.Context)
 	CreateJob(context *gin.Context)
 	CancelJob(context *gin.Context)
 }
@@ -82,4 +83,24 @@ func (_self *jobController) CancelJob(c *gin.Context) {
 	}
 
 	c.Status(http.StatusNoContent)
+}
+
+func (_self *jobController) GetJobs(c *gin.Context) {
+	user, _ := c.Get(jwt.IdentityKey)
+	userId := user.(*entity.User).Id
+
+	jobs, err := _self.jobUsecase.GetJobs(c, userId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+			"success": false,
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data":    jobs,
+		"success": true,
+	})
 }
