@@ -1,0 +1,53 @@
+version: '3.3'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:${CONFLUENT_PLATFORM_VERSION:-7.4.0}
+    user: root
+    ports:
+    - "2181:2181"
+    - "2888:2888"
+    - "3888:3888"
+    healthcheck:
+      test: echo stat | nc localhost 2181
+      interval: 10s
+      timeout: 10s
+      retries: 3
+    environment:
+    - ZOOKEEPER_SERVER_ID=1
+    - ZOOKEEPER_CLIENT_PORT=2181
+    - ZOOKEEPER_TICK_TIME=2000
+    - ZOOKEEPER_INIT_LIMIT=5
+    - ZOOKEEPER_SYNC_LIMIT=2
+    - ZOOKEEPER_SERVERS=zookeeper:2888:3888
+  kafka:
+    image: confluentinc/cp-kafka:${CONFLUENT_PLATFORM_VERSION:-7.4.0}
+    healthcheck:
+      test: ps augwwx | egrep [S]upportedKafka
+    depends_on:
+    - zookeeper
+    ports:
+    - "9091:9091"
+    environment:
+    - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9091
+    - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9091
+    - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+    - KAFKA_BROKER_ID=1
+    - BOOTSTRAP_SERVERS=kafka:9091
+    - ZOOKEEPER=zookeeper:2181
+  postgres:
+    image: "postgres:12-alpine"
+    container_name: postgres
+    restart: always
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=job-scheduler
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
