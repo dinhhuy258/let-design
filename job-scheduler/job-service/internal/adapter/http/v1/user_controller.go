@@ -3,6 +3,7 @@ package httpv1
 import (
 	"job-service/internal/entity"
 	"job-service/internal/usecase"
+	"job-service/pkg/httpserver"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -22,24 +23,20 @@ func NewUserController(userUsecase usecase.UserUsecase) UserController {
 	}
 }
 
-func (_self *userController) CreateUser(context *gin.Context) {
+func (_self *userController) CreateUser(c *gin.Context) {
 	user := entity.User{}
-	if err := context.BindJSON(&user); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
+	if err := c.BindJSON(&user); err != nil {
+		httpserver.ErrorResponse(c, http.StatusBadRequest, err.Error())
 
 		return
 	}
 
-	err := _self.userUsecase.CreateUser(context, user)
+	err := _self.userUsecase.CreateUser(c, user)
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{
-			"message": err.Error(),
-		})
+		httpserver.ErrorResponse(c, http.StatusInternalServerError, err.Error())
 
 		return
 	}
 
-	context.JSON(http.StatusCreated, nil)
+	httpserver.StatusResponse(c, http.StatusCreated)
 }

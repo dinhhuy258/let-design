@@ -10,6 +10,7 @@ type JobUsecase interface {
 	GetJobs(ctx context.Context, userId uint64) ([]entity.Job, error)
 	CreateJob(ctx context.Context, job entity.Job) (entity.Job, error)
 	CancelJob(ctx context.Context, userId, jobId uint64) error
+	GetJob(ctx context.Context, userId, jobId uint64) (entity.Job, error)
 }
 
 type jobUsecase struct {
@@ -82,12 +83,31 @@ func (_self *jobUsecase) CancelJob(ctx context.Context, userId, jobId uint64) er
 }
 
 func (_self *jobUsecase) GetJobs(ctx context.Context, userId uint64) ([]entity.Job, error) {
-	_, err := _self.jobRepository.FindMultiByUserId(ctx, userId)
+	jobs, err := _self.jobRepository.FindMultiByUserId(ctx, userId)
 	if err != nil {
 		_self.logger.Error("failed to get jobs %v", err)
 
 		return nil, err
 	}
 
-	return []entity.Job{}, nil
+	return jobs, nil
+}
+
+func (_self *jobUsecase) GetJob(ctx context.Context, userId uint64, jobId uint64) (entity.Job, error) {
+	job, err := _self.jobRepository.FindById(ctx, jobId)
+	if err != nil {
+		_self.logger.Error("failed to get job %v", err)
+
+		return entity.Job{}, err
+	}
+
+	if job == nil {
+		return entity.Job{}, entity.ErrJobNotFound
+	}
+
+	if job.UserId != userId {
+		return entity.Job{}, entity.ErrJobNotFound
+	}
+
+	return *job, nil
 }

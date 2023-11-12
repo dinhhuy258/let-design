@@ -3,6 +3,7 @@ package httpv1
 import (
 	"job-service/internal/entity"
 	"job-service/internal/usecase"
+	"job-service/pkg/httpserver"
 	"net/http"
 	"strconv"
 
@@ -11,9 +12,10 @@ import (
 )
 
 type JobController interface {
-	GetJobs(context *gin.Context)
-	CreateJob(context *gin.Context)
-	CancelJob(context *gin.Context)
+	GetJobs(c *gin.Context)
+	CreateJob(c *gin.Context)
+	CancelJob(c *gin.Context)
+	GetJob(c *gin.Context)
 }
 
 type jobController struct {
@@ -29,10 +31,7 @@ func NewJobController(jobUsecase usecase.JobUsecase) JobController {
 func (_self *jobController) CreateJob(c *gin.Context) {
 	job := entity.Job{}
 	if err := c.BindJSON(&job); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-			"success": false,
-		})
+		httpserver.ErrorResponse(c, http.StatusBadRequest, err.Error())
 
 		return
 	}
@@ -43,18 +42,12 @@ func (_self *jobController) CreateJob(c *gin.Context) {
 
 	job, err := _self.jobUsecase.CreateJob(c, job)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": err.Error(),
-			"success": false,
-		})
+		httpserver.ErrorResponse(c, http.StatusInternalServerError, err.Error())
 
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"data":    job,
-		"success": true,
-	})
+	httpserver.SuccessResponse(c, job)
 }
 
 func (_self *jobController) CancelJob(c *gin.Context) {
@@ -65,24 +58,17 @@ func (_self *jobController) CancelJob(c *gin.Context) {
 
 	jobId, err := strconv.ParseUint(jobIdParam, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-			"success": false,
-		})
+		httpserver.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 
 	err = _self.jobUsecase.CancelJob(c, userId, jobId)
 	if err != nil {
-		// TODO: Handle error properly
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": err.Error(),
-			"success": false,
-		})
+		httpserver.ErrorResponse(c, http.StatusInternalServerError, err.Error())
 
 		return
 	}
 
-	c.Status(http.StatusNoContent)
+	httpserver.StatusResponse(c, http.StatusNoContent)
 }
 
 func (_self *jobController) GetJobs(c *gin.Context) {
@@ -91,16 +77,31 @@ func (_self *jobController) GetJobs(c *gin.Context) {
 
 	jobs, err := _self.jobUsecase.GetJobs(c, userId)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": err.Error(),
-			"success": false,
-		})
+		httpserver.ErrorResponse(c, http.StatusInternalServerError, err.Error())
 
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"data":    jobs,
-		"success": true,
-	})
+	httpserver.SuccessResponse(c, jobs)
+}
+
+func (_self *jobController) GetJob(c *gin.Context) {
+	user, _ := c.Get(jwt.IdentityKey)
+	userId := user.(*entity.User).Id
+
+	jobIdParam := c.Param("job_id")
+
+	jobId, err := strconv.ParseUint(jobIdParam, 10, 64)
+	if err != nil {
+		httpserver.ErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	job, err := _self.jobUsecase.GetJob(c, userId, jobId)
+	if err != nil {
+		httpserver.ErrorResponse(c, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+
+	httpserver.SuccessResponse(c, job)
 }

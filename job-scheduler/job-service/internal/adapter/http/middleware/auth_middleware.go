@@ -5,6 +5,7 @@ import (
 	"job-service/config"
 	"job-service/internal/entity"
 	"job-service/internal/usecase"
+	"job-service/pkg/httpserver"
 	"job-service/pkg/logger"
 	"net/http"
 	"time"
@@ -76,30 +77,23 @@ func NewAuthMiddleware(
 			u, _ := c.Get(userData)
 			user, _ := u.(*entity.User)
 
-			c.JSON(http.StatusOK, gin.H{
+			httpserver.SuccessResponse(c, gin.H{
 				"expire": expire,
 				"token":  token,
 				"user":   user,
 			})
 		},
 		RefreshResponse: func(c *gin.Context, _ int, token string, expire time.Time) {
-			u, _ := c.Get(userData)
-			user, _ := u.(*entity.User)
-
-			c.JSON(http.StatusOK, gin.H{
+			httpserver.SuccessResponse(c, gin.H{
 				"expire": expire,
 				"token":  token,
-				"user":   user,
 			})
 		},
 		LogoutResponse: func(c *gin.Context, code int) {
 			c.Status(code)
 		},
 		Unauthorized: func(c *gin.Context, _ int, message string) {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"success": false,
-				"message": message,
-			})
+			httpserver.ErrorResponse(c, http.StatusUnauthorized, message)
 		},
 		TokenLookup:   "header: Authorization, query: token, cookie: jwt",
 		TokenHeadName: "Bearer",

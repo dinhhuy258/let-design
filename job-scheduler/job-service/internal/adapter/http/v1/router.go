@@ -31,5 +31,6 @@ func SetRoutes(
 		apiV1Group.GET("me/jobs", jobController.GetJobs)
 		apiV1Group.POST("me/jobs", jobController.CreateJob)
 		apiV1Group.POST("me/jobs/:job_id", jobController.CancelJob)
+		apiV1Group.GET("me/jobs/:job_id", jobController.GetJob)
 	}
 }

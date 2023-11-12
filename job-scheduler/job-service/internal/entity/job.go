@@ -19,7 +19,7 @@ type Job struct {
 	Message   string    `json:"message"`
 	Status    string    `json:"status"`
 	ExecuteAt time.Time `json:"execute_at"`
-	ShardId   uint64
+	ShardId   uint64    `json:"shard_id"`
 }
 
 type JobRepository interface {
