@@ -51,13 +51,21 @@ func (_self *schedulerWorker) Start() {
 			case <-_self.closed:
 				return
 			case <-_self.ticker.C:
+				_self.logger.Info("scheduler worker is running")
+
 				jobs, err := _self.jobUsecase.GetAvailableJobs(ctx, _self.shardIds)
 				if err != nil {
 					_self.logger.Error("error while getting available jobs", err)
 				} else {
-					err := _self.schedulerUsecase.ScheduleJobs(ctx, jobs)
-					if err != nil {
-						_self.logger.Error("error while scheduling jobs %v", err)
+					if len(jobs) == 0 {
+						_self.logger.Info("no jobs to schedule")
+					} else {
+						_self.logger.Info("scheduling jobs count %d", len(jobs))
+
+						err := _self.schedulerUsecase.ScheduleJobs(ctx, jobs)
+						if err != nil {
+							_self.logger.Error("error while scheduling jobs %v", err)
+						}
 					}
 				}
 			}

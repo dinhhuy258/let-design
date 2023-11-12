@@ -38,22 +38,6 @@ func (_self *fairSchedulerUsecase) ScheduleJobs(ctx context.Context, jobs []enti
 		return nil
 	}
 
-	jobGroups := lo.PartitionBy(jobs, func(job entity.Job) int {
-		return int(job.User.Id)
-	})
-
-	// sort job groups by user's job weight
-	sort.Slice(jobGroups, func(i, j int) bool {
-		return jobGroups[i][0].User.JobWeight > jobGroups[j][0].User.JobWeight
-	})
-
-	for jobGroupIdx := range jobGroups {
-		// sort jobs by execute_at
-		sort.Slice(jobGroups[jobGroupIdx], func(i, j int) bool {
-			return jobGroups[jobGroupIdx][i].ExecuteAt.Before(jobGroups[jobGroupIdx][j].ExecuteAt)
-		})
-	}
-
 	scheduledJobs := _self.getScheduledJobs(jobs)
 	for _, job := range scheduledJobs {
 		_ = _self.scheduleJob(ctx, job)
@@ -108,7 +92,7 @@ func (*fairSchedulerUsecase) getScheduledJobs(jobs []entity.Job) []entity.Job {
 	// initialize the ring and set the value of each element to the list of jobs of each job group
 	for i := 0; i < len(jobGroups); i++ {
 		// keep track of jobGroups in a queue
-		// it will help us to remove the processed tasks from the queue easilys
+		// it will help us to remove the processed tasks from the queue easily
 		// we can still use slice, but we need to sort the slice in descending order
 		// and remove the processed tasks from the slice from the end of the slice to the beginning of
 		// the slice (it will be O(1) time complexity for deletion operation)
