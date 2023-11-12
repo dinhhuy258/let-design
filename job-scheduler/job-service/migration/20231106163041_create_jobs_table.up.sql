@@ -12,6 +12,6 @@ CREATE TABLE jobs (
     CONSTRAINT fk_jobs_users FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE INDEX IF NOT EXISTS jobs_user_id ON jobs(user_id);
+CREATE INDEX IF NOT EXISTS jobs_user_id_execute_at ON jobs(user_id, execute_at);
 
 COMMIT;
