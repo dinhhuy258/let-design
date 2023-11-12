@@ -35,7 +35,7 @@ type Config struct {
 		DebugQuery                               bool   `envconfig:"POSTGRES_DEBUG_QUERY" default:"true"`
 	}
 	Kafka struct {
-		BootstrapServers  string `envconfig:"KAFKA_BOOTSTRAP_SERVERS" default:"kafka:9091"`
+		BootstrapServers  string `envconfig:"KAFKA_BOOTSTRAP_SERVERS" default:"kafka1:9091"`
 		ClientId          string `envconfig:"KAFKA_PRODUCER_CLIENT_ID" default:"job-scheduler-worker"`
 		ACKS              string `envconfig:"KAFKA_PRODUCER_ACKS" default:"all"`
 		ScheduledJobTopic string `envconfig:"KAFKA_PRODUCER_SCHEDULED_JOB_TOPIC" default:"scheduled_jobs"`
