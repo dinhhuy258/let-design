@@ -26,14 +26,14 @@ func NewUserController(userUsecase usecase.UserUsecase) UserController {
 func (_self *userController) CreateUser(c *gin.Context) {
 	user := entity.User{}
 	if err := c.BindJSON(&user); err != nil {
-		httpserver.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		_ = c.Error(entity.ErrBadRequest)
 
 		return
 	}
 
 	err := _self.userUsecase.CreateUser(c, user)
 	if err != nil {
-		httpserver.ErrorResponse(c, http.StatusInternalServerError, err.Error())
+		_ = c.Error(err)
 
 		return
 	}

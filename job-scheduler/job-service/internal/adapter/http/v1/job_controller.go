@@ -31,7 +31,7 @@ func NewJobController(jobUsecase usecase.JobUsecase) JobController {
 func (_self *jobController) CreateJob(c *gin.Context) {
 	job := entity.Job{}
 	if err := c.BindJSON(&job); err != nil {
-		httpserver.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		_ = c.Error(entity.ErrBadRequest)
 
 		return
 	}
@@ -42,7 +42,7 @@ func (_self *jobController) CreateJob(c *gin.Context) {
 
 	job, err := _self.jobUsecase.CreateJob(c, job)
 	if err != nil {
-		httpserver.ErrorResponse(c, http.StatusInternalServerError, err.Error())
+		_ = c.Error(err)
 
 		return
 	}
@@ -58,12 +58,14 @@ func (_self *jobController) CancelJob(c *gin.Context) {
 
 	jobId, err := strconv.ParseUint(jobIdParam, 10, 64)
 	if err != nil {
-		httpserver.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		_ = c.Error(entity.ErrBadRequest)
+
+		return
 	}
 
 	err = _self.jobUsecase.CancelJob(c, userId, jobId)
 	if err != nil {
-		httpserver.ErrorResponse(c, http.StatusInternalServerError, err.Error())
+		_ = c.Error(err)
 
 		return
 	}
@@ -77,7 +79,7 @@ func (_self *jobController) GetJobs(c *gin.Context) {
 
 	jobs, err := _self.jobUsecase.GetJobs(c, userId)
 	if err != nil {
-		httpserver.ErrorResponse(c, http.StatusInternalServerError, err.Error())
+		_ = c.Error(err)
 
 		return
 	}
@@ -93,12 +95,14 @@ func (_self *jobController) GetJob(c *gin.Context) {
 
 	jobId, err := strconv.ParseUint(jobIdParam, 10, 64)
 	if err != nil {
-		httpserver.ErrorResponse(c, http.StatusBadRequest, err.Error())
+		_ = c.Error(entity.ErrBadRequest)
+
+		return
 	}
 
 	job, err := _self.jobUsecase.GetJob(c, userId, jobId)
 	if err != nil {
-		httpserver.ErrorResponse(c, http.StatusInternalServerError, err.Error())
+		_ = c.Error(err)
 
 		return
 	}

@@ -1,6 +1,7 @@
 package httpv1
 
 import (
+	"job-service/internal/adapter/http/middleware"
 	"job-service/pkg/httpserver"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
@@ -18,6 +19,7 @@ func SetRoutes(
 	jobController JobController,
 ) {
 	router := server.GetRouter()
+	router.Use(middleware.ErrorHandler)
 
 	apiV1Group := router.Group(basePath)
 	// users
