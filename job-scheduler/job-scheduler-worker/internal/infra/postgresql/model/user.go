@@ -1,7 +1,7 @@
 package model
 
 import (
-	"job-scheduler-service/internal/entity"
+	"job-scheduler-worker/internal/entity"
 )
 
 type User struct {

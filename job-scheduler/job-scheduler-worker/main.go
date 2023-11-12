@@ -1,7 +1,7 @@
 package main
 
 import (
-	"job-scheduler-service/cmd"
+	"job-scheduler-worker/cmd"
 	"log"
 )
 

@@ -4,9 +4,9 @@ import (
 	"container/list"
 	"container/ring"
 	"context"
-	"job-scheduler-service/config"
-	"job-scheduler-service/internal/entity"
-	"job-scheduler-service/pkg/logger"
+	"job-scheduler-worker/config"
+	"job-scheduler-worker/internal/entity"
+	"job-scheduler-worker/pkg/logger"
 	"math"
 	"sort"
 

@@ -2,8 +2,8 @@ package postgresql
 
 import (
 	"context"
-	"job-scheduler-service/internal/entity"
-	"job-scheduler-service/internal/infra/postgresql/model"
+	"job-scheduler-worker/internal/entity"
+	"job-scheduler-worker/internal/infra/postgresql/model"
 	"time"
 
 	"gorm.io/gorm"

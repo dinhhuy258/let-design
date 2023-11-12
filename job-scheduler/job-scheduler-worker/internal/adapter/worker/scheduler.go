@@ -2,9 +2,9 @@ package worker
 
 import (
 	"context"
-	"job-scheduler-service/config"
-	"job-scheduler-service/internal/usecase"
-	"job-scheduler-service/pkg/logger"
+	"job-scheduler-worker/config"
+	"job-scheduler-worker/internal/usecase"
+	"job-scheduler-worker/pkg/logger"
 	"time"
 )
 

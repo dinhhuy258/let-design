@@ -1,8 +1,8 @@
 package kafka
 
 import (
-	"job-scheduler-service/config"
-	"job-scheduler-service/internal/entity"
+	"job-scheduler-worker/config"
+	"job-scheduler-worker/internal/entity"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 )

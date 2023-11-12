@@ -1,4 +1,4 @@
-module job-scheduler-service
+module job-scheduler-worker
 
 go 1.20
 

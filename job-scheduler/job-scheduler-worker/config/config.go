@@ -11,7 +11,7 @@ import (
 
 type Config struct {
 	App struct {
-		Name         string        `envconfig:"APP_NAME" default:"job-scheduler-service"`
+		Name         string        `envconfig:"APP_NAME" default:"job-scheduler-worker"`
 		StartTimeout time.Duration `envconfig:"START_TIMEOUT" default:"1m"`
 		StopTimeout  time.Duration `envconfig:"STOP_TIMEOUT" default:"1m"`
 		ShardIds     []uint64      `envconfig:"SHARD_IDS" default:"1,2,3,4,5,6,7,8,9,10"`
@@ -36,7 +36,7 @@ type Config struct {
 	}
 	Kafka struct {
 		BootstrapServers  string `envconfig:"KAFKA_BOOTSTRAP_SERVERS" default:"kafka:9091"`
-		ClientId          string `envconfig:"KAFKA_PRODUCER_CLIENT_ID" default:"job-scheduler-service"`
+		ClientId          string `envconfig:"KAFKA_PRODUCER_CLIENT_ID" default:"job-scheduler-worker"`
 		ACKS              string `envconfig:"KAFKA_PRODUCER_ACKS" default:"all"`
 		ScheduledJobTopic string `envconfig:"KAFKA_PRODUCER_SCHEDULED_JOB_TOPIC" default:"scheduled_jobs"`
 	}
@@ -47,7 +47,7 @@ func loadConfig() (*Config, error) {
 
 	var config Config
 
-	err := envconfig.Process("job-scheduler-service", &config)
+	err := envconfig.Process("job-scheduler-worker", &config)
 	if err != nil {
 		return nil, err
 	}

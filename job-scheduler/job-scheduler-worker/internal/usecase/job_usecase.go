@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"context"
-	"job-scheduler-service/internal/entity"
+	"job-scheduler-worker/internal/entity"
 	"time"
 )
 

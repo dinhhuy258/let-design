@@ -2,8 +2,8 @@ package usecase
 
 import (
 	"context"
-	"job-scheduler-service/internal/entity"
-	"job-scheduler-service/pkg/logger"
+	"job-scheduler-worker/internal/entity"
+	"job-scheduler-worker/pkg/logger"
 )
 
 type SchedulerUsecase interface {
